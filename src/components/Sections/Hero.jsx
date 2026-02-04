@@ -11,13 +11,15 @@ export default function Hero() {
 
       {/* Background Video */}
       <div className="hero-bg">
-        <iframe
-          src="https://player.vimeo.com/video/1161251399?background=1&autoplay=1&loop=1&byline=0&title=0&muted=1"
-          frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture"
-          title="Hero Video"
-        ></iframe>
-
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="video-content"
+        >
+          <source src="./hero.mp4" type="video/mp4" />
+        </video>
       </div>
 
       {/* Floating Glass Shapes */}
@@ -59,7 +61,8 @@ export default function Hero() {
           height: 100vh;
           width: 100%;
           overflow: hidden;
-          color: #111; /* Dark text for light theme */
+          color: #111; 
+          background-color: #000; /* Fallback while video loads */
         }
 
         .hero-bg {
@@ -70,18 +73,13 @@ export default function Hero() {
             overflow: hidden;
         }
 
-        .hero-bg iframe {
+        .hero-bg .video-content {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100vw;
-            height: 100vh;
-            /* Force aspect ratio to cover screen (16:9 approx) 
-               Using min-width/height logic to emulate object-fit: cover */
-            min-width: 177.77vh; /* 16:9 aspect */
-            min-height: 56.25vw;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
+            top: 0;
+            left: 0;
         }
         
 
