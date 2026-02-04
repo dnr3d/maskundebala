@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 import { ArrowLeft, Save, Type, Image as ImageIcon, Trash2, ArrowUp, ArrowDown, Plus, Video, Loader } from 'lucide-react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../firebase';
 
 export default function ProjectEditor() {
     const { id } = useParams();
@@ -39,22 +37,38 @@ export default function ProjectEditor() {
         }
     }, [id, projects]);
 
-    const uploadFile = async (file) => {
+    // Base64 Converter
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    };
+
+    const handleFileUpload = async (file) => {
         if (!file) return null;
+
+        // Simple size check (approx 800KB limit to be safe for Firestore 1MB limit)
+        if (file.size > 800 * 1024) {
+            alert("Image is too large! Please use an image under 800KB for database storage.");
+            return null;
+        }
+
         setIsUploading(true);
         try {
-            const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            return downloadURL;
+            const base64 = await convertToBase64(file);
+            return base64;
         } catch (error) {
-            console.error("Upload failed", error);
-            alert("Upload failed!");
+            console.error("Base64 conversion failed", error);
+            alert("Failed to process image.");
             return null;
         } finally {
             setIsUploading(false);
         }
     };
+
 
     // Handlers
     const handleSave = async () => {
@@ -85,9 +99,9 @@ export default function ProjectEditor() {
     };
 
     const handleBlockImageUpload = async (blockId, file) => {
-        const url = await uploadFile(file);
-        if (url) {
-            updateBlock(blockId, url);
+        const base64 = await handleFileUpload(file);
+        if (base64) {
+            updateBlock(blockId, base64);
         }
     };
 
@@ -119,7 +133,7 @@ export default function ProjectEditor() {
                         <ArrowLeft size={20} />
                     </button>
                     <h1>{id === 'new' ? 'New Project' : 'Edit Project'}</h1>
-                    {isUploading && <span style={{ marginLeft: 10, color: '#007bff', display: 'flex', alignItems: 'center', gap: 5 }}><Loader className="spin" size={16} /> Uploading...</span>}
+                    {isUploading && <span style={{ marginLeft: 10, color: '#007bff', display: 'flex', alignItems: 'center', gap: 5 }}><Loader className="spin" size={16} /> Processing...</span>}
                 </div>
                 <button onClick={handleSave} className="btn-save" disabled={isUploading}>
                     <Save size={18} /> Save Changes
@@ -163,7 +177,7 @@ export default function ProjectEditor() {
                                                     type="text"
                                                     value={block.value}
                                                     onChange={(e) => updateBlock(block.id, e.target.value)}
-                                                    placeholder="Paste Image URL..."
+                                                    placeholder="Paste Image URL or Upload..."
                                                     style={{ flex: 1 }}
                                                 />
                                                 <label className="btn-icon" style={{ cursor: 'pointer', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', width: '40px', border: '1px solid #ddd' }}>
@@ -249,7 +263,7 @@ export default function ProjectEditor() {
                                     type="text"
                                     value={project.img}
                                     onChange={e => setProject({ ...project, img: e.target.value })}
-                                    placeholder="Image URL"
+                                    placeholder="Image URL or Upload..."
                                     style={{ flex: 1 }}
                                 />
                                 <label className="btn-icon" style={{ cursor: 'pointer', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', width: '40px', color: 'white' }}>
@@ -258,9 +272,9 @@ export default function ProjectEditor() {
                                         accept="image/*"
                                         style={{ display: 'none' }}
                                         onChange={async (e) => {
-                                            const url = await uploadFile(e.target.files[0]);
-                                            if (url) {
-                                                setProject(prev => ({ ...prev, img: url }));
+                                            const base64 = await handleFileUpload(e.target.files[0]);
+                                            if (base64) {
+                                                setProject(prev => ({ ...prev, img: base64 }));
                                             }
                                         }}
                                     />
