@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
@@ -8,7 +8,7 @@ const AdminPanel = lazy(() => import('./pages/Admin'));
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route
@@ -21,7 +21,7 @@ function App() {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
