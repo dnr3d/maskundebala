@@ -1,18 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-const initialProjects = [
-    { id: 1, title: 'Neon Genesis', category: 'Branding', img: '#222', galleryImages: [] },
-    { id: 2, title: 'Cyber Interface', category: 'UI/UX', img: '#333', galleryImages: [] },
-    { id: 3, title: 'Void Walker', category: 'Game Dev', img: '#444', galleryImages: [] },
-    { id: 4, title: 'Abstract Reality', category: '3D Art', img: '#555', galleryImages: [] },
-    { id: 5, title: 'Neural Net', category: 'Web App', img: '#666', galleryImages: [] },
-];
+import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export const useStore = create(
     persist(
-        (set) => ({
-            // Hero Section
+        (set, get) => ({
             // Hero Section
             hero: {
                 headlineFirst: 'PURE',
@@ -45,18 +38,49 @@ export const useStore = create(
             updateContact: (data) => set((state) => ({ contact: { ...state.contact, ...data } })),
 
             // Projects
-            projects: initialProjects,
-            addProject: (project) => set((state) => ({
-                projects: [...state.projects, { ...project, id: Date.now() }]
-            })),
-            updateProject: (id, data) => set((state) => ({
-                projects: state.projects.map((p) => p.id === id ? { ...p, ...data } : p)
-            })),
-            deleteProject: (id) => set((state) => ({
-                projects: state.projects.filter((p) => p.id !== id)
-            })),
+            projects: [],
+            fetchProjects: async () => {
+                try {
+                    const querySnapshot = await getDocs(collection(db, 'projects'));
+                    const projectsData = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                    set({ projects: projectsData });
+                } catch (error) {
+                    console.error("Error fetching projects:", error);
+                }
+            },
+            addProject: async (project) => {
+                try {
+                    const docRef = await addDoc(collection(db, 'projects'), project);
+                    const newProject = { ...project, id: docRef.id };
+                    set((state) => ({ projects: [newProject, ...state.projects] }));
+                } catch (error) {
+                    console.error("Error adding project:", error);
+                }
+            },
+            updateProject: async (id, data) => {
+                try {
+                    const projectRef = doc(db, 'projects', id);
+                    await updateDoc(projectRef, data);
+                    set((state) => ({
+                        projects: state.projects.map((p) => p.id === id ? { ...p, ...data } : p)
+                    }));
+                } catch (error) {
+                    console.error("Error updating project:", error);
+                }
+            },
+            deleteProject: async (id) => {
+                try {
+                    await deleteDoc(doc(db, 'projects', id));
+                    set((state) => ({
+                        projects: state.projects.filter((p) => p.id !== id)
+                    }));
+                } catch (error) {
+                    console.error("Error deleting project:", error);
+                }
+            },
 
             // Categories
+
             categories: ['Branding', '3D', '3D Animation', '2D Arts', '2D Animation', 'UI/UX', 'Game Dev', 'Web App'],
             addCategory: (category) => set((state) => ({
                 categories: [...state.categories, category]

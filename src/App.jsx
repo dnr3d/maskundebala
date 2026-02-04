@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
+import { useStore } from './store/useStore';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 
@@ -7,6 +8,12 @@ import NotFound from './pages/NotFound';
 const AdminPanel = lazy(() => import('./pages/Admin'));
 
 function App() {
+  const { fetchProjects } = useStore();
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
   return (
     <HashRouter>
       <Routes>

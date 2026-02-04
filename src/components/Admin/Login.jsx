@@ -1,17 +1,32 @@
 import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
 
-export default function Login({ onLogin }) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
     }
-    onLogin(email, password);
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // Auth state listener in Admin.jsx will handle redirection
+    } catch (err) {
+      console.error("Login failed", err);
+      setError('Failed to login. Check your email and password.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -27,6 +42,7 @@ export default function Login({ onLogin }) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@example.com"
               className="input-field"
+              disabled={isLoading}
             />
           </div>
           <div className="form-group">
@@ -37,12 +53,15 @@ export default function Login({ onLogin }) {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               className="input-field"
+              disabled={isLoading}
             />
           </div>
 
           {error && <p className="error">{error}</p>}
 
-          <button type="submit" className="submit-btn">Access Dashboard</button>
+          <button type="submit" className="submit-btn" disabled={isLoading}>
+            {isLoading ? 'Signing in...' : 'Access Dashboard'}
+          </button>
         </form>
       </div>
 

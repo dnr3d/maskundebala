@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
-import { ArrowLeft, Save, Type, Image as ImageIcon, Trash2, ArrowUp, ArrowDown, Plus, Video } from 'lucide-react';
+import { ArrowLeft, Save, Type, Image as ImageIcon, Trash2, ArrowUp, ArrowDown, Plus, Video, Loader } from 'lucide-react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../firebase';
 
 export default function ProjectEditor() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { projects, updateProject, addProject, categories } = useStore();
+    const [isUploading, setIsUploading] = useState(false);
 
     // Local State
     const [project, setProject] = useState({
@@ -36,12 +39,29 @@ export default function ProjectEditor() {
         }
     }, [id, projects]);
 
+    const uploadFile = async (file) => {
+        if (!file) return null;
+        setIsUploading(true);
+        try {
+            const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
+            return downloadURL;
+        } catch (error) {
+            console.error("Upload failed", error);
+            alert("Upload failed!");
+            return null;
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
     // Handlers
-    const handleSave = () => {
+    const handleSave = async () => {
         if (id && id !== 'new') {
-            updateProject(project.id, project);
+            await updateProject(project.id, project);
         } else {
-            addProject({ ...project, id: Date.now() });
+            await addProject({ ...project, id: Date.now() }); // Date.now will be overwritten by Firestore ID logic in store usually, but ok
         }
         alert('Project Saved!');
         navigate('/admin');
@@ -62,6 +82,13 @@ export default function ProjectEditor() {
             ...prev,
             content: prev.content.map(b => b.id === blockId ? { ...b, value } : b)
         }));
+    };
+
+    const handleBlockImageUpload = async (blockId, file) => {
+        const url = await uploadFile(file);
+        if (url) {
+            updateBlock(blockId, url);
+        }
     };
 
     const moveBlock = (index, direction) => {
@@ -92,8 +119,9 @@ export default function ProjectEditor() {
                         <ArrowLeft size={20} />
                     </button>
                     <h1>{id === 'new' ? 'New Project' : 'Edit Project'}</h1>
+                    {isUploading && <span style={{ marginLeft: 10, color: '#007bff', display: 'flex', alignItems: 'center', gap: 5 }}><Loader className="spin" size={16} /> Uploading...</span>}
                 </div>
-                <button onClick={handleSave} className="btn-save">
+                <button onClick={handleSave} className="btn-save" disabled={isUploading}>
                     <Save size={18} /> Save Changes
                 </button>
             </header>
@@ -130,12 +158,24 @@ export default function ProjectEditor() {
                                     )}
                                     {block.type === 'image' && (
                                         <div className="image-block">
-                                            <input
-                                                type="text"
-                                                value={block.value}
-                                                onChange={(e) => updateBlock(block.id, e.target.value)}
-                                                placeholder="Paste Image URL..."
-                                            />
+                                            <div style={{ display: 'flex', gap: 10 }}>
+                                                <input
+                                                    type="text"
+                                                    value={block.value}
+                                                    onChange={(e) => updateBlock(block.id, e.target.value)}
+                                                    placeholder="Paste Image URL..."
+                                                    style={{ flex: 1 }}
+                                                />
+                                                <label className="btn-icon" style={{ cursor: 'pointer', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', width: '40px', border: '1px solid #ddd' }}>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        style={{ display: 'none' }}
+                                                        onChange={(e) => handleBlockImageUpload(block.id, e.target.files[0])}
+                                                    />
+                                                    <ImageIcon size={18} />
+                                                </label>
+                                            </div>
                                             {block.value && (
                                                 <div className="img-preview">
                                                     <img src={block.value} alt="Preview" onError={(e) => e.target.style.display = 'none'} />
@@ -212,19 +252,15 @@ export default function ProjectEditor() {
                                     placeholder="Image URL"
                                     style={{ flex: 1 }}
                                 />
-                                <label className="btn-icon" style={{ cursor: 'pointer', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', width: '40px' }}>
+                                <label className="btn-icon" style={{ cursor: 'pointer', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', width: '40px', color: 'white' }}>
                                     <input
                                         type="file"
                                         accept="image/*"
                                         style={{ display: 'none' }}
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                    setProject(prev => ({ ...prev, img: reader.result }));
-                                                };
-                                                reader.readAsDataURL(file);
+                                        onChange={async (e) => {
+                                            const url = await uploadFile(e.target.files[0]);
+                                            if (url) {
+                                                setProject(prev => ({ ...prev, img: url }));
                                             }
                                         }}
                                     />
@@ -367,6 +403,12 @@ export default function ProjectEditor() {
                     width: 100%; background: #f9f9f9; border: 1px solid #ddd; color: #000; padding: 8px; border-radius: 4px;
                 }
                 .sidebar-preview { width: 100%; height: 150px; object-fit: cover; margin-top: 5px; border-radius: 4px; border: 1px solid #eee; }
+
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                .spin { animation: spin 1s linear infinite; }
 
             `}</style>
         </div>

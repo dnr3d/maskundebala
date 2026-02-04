@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { onAuthStateChanged, signOut } from 'firebase/auth'; // Import Firebase auth
+import { auth } from '../firebase'; // Import auth instance
 import ContentEditor from '../components/Admin/ContentEditor';
 import ProjectManager from '../components/Admin/ProjectManager';
 import InquiryList from '../components/Admin/InquiryList';
@@ -31,43 +33,30 @@ export default function AdminPanel() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage on load
-        const auth = localStorage.getItem('isAdmin');
-        if (auth === 'true') {
-            setIsAuthenticated(true);
-        }
-        setIsLoading(false);
+        // Subscribe to Firebase Auth state
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
+            }
+            setIsLoading(false);
+        });
+
+        // Cleanup subscription
+        return () => unsubscribe();
     }, []);
 
-    const handleLogin = (email, password) => {
-        const ADMIN_EMAIL = 'dbeksultan6@gmail.com';
-        const ADMIN_PASS = 'Medinabexultan_0109';
-
-        // Trim inputs to avoid whitespace errors
-        const cleanEmail = email.trim();
-        const cleanPass = password.trim();
-
-        console.log('Attempting login with:', cleanEmail);
-
-        if (cleanEmail === ADMIN_EMAIL && cleanPass === ADMIN_PASS) {
-            localStorage.setItem('isAdmin', 'true');
-            setIsAuthenticated(true);
-        } else {
-            alert('Invalid credentials');
-            console.error('Login failed');
-        }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('isAdmin');
-        setIsAuthenticated(false);
+    const handleLogout = async () => {
+        await signOut(auth);
+        // State update handled by onAuthStateChanged
         navigate('/');
     };
 
     if (isLoading) return <div style={{ color: 'white', padding: 50 }}>Loading...</div>;
 
     if (!isAuthenticated) {
-        return <Login onLogin={handleLogin} />;
+        return <Login />;
     }
 
     // Hide sidebar on editor page to give full space
