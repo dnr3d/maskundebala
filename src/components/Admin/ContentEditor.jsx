@@ -88,7 +88,7 @@ export default function ContentEditor() {
                         <label>Headline Line 2</label>
                         <input {...regHero("headlineSecond")} />
                         <label>Subtitle</label>
-                        <input {...regHero("subhead")} />
+                        <input {...regHero("sub")} />
                         <button type="submit" className="btn-save">Save Hero</button>
                     </form>
                 </div>
