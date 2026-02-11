@@ -1,8 +1,15 @@
+import { useEffect } from 'react';
 import { useStore } from '../../store/useStore';
 import { Mail, Phone, Calendar, Trash2, Check, ExternalLink } from 'lucide-react';
 
 export default function InquiryList() {
-    const { inquiries, deleteInquiry, markInquiryRead } = useStore();
+    const { inquiries, deleteInquiry, markInquiryRead, fetchInquiries } = useStore();
+
+    useEffect(() => {
+        if (fetchInquiries) {
+            fetchInquiries();
+        }
+    }, [fetchInquiries]);
 
     if (!inquiries.length) {
         return (

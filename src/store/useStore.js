@@ -518,15 +518,56 @@ export const useStore = create(
 
             // Inquiries
             inquiries: [],
-            addInquiry: (data) => set((state) => ({
-                inquiries: [{ ...data, id: Date.now(), date: new Date().toISOString(), read: false }, ...(state.inquiries || [])]
-            })),
-            deleteInquiry: (id) => set((state) => ({
-                inquiries: state.inquiries.filter((i) => i.id !== id)
-            })),
-            markInquiryRead: (id) => set((state) => ({
-                inquiries: state.inquiries.map((i) => i.id === id ? { ...i, read: true } : i)
-            })),
+            fetchInquiries: async () => {
+                try {
+                    const q = collection(db, 'inquiries');
+                    const snapshot = await getDocs(q);
+                    const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+                    // Sort by date desc
+                    data.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    set({ inquiries: data });
+                } catch (error) {
+                    console.error("Error fetching inquiries:", error);
+                }
+            },
+            addInquiry: async (data) => {
+                const newInquiry = { ...data, date: new Date().toISOString(), read: false };
+                // Optimistic update
+                set((state) => ({
+                    inquiries: [{ ...newInquiry, id: 'temp-' + Date.now() }, ...(state.inquiries || [])]
+                }));
+
+                try {
+                    const docRef = await addDoc(collection(db, 'inquiries'), newInquiry);
+                    // Update the temp ID with real ID
+                    set((state) => ({
+                        inquiries: state.inquiries.map(i => i.id.toString().startsWith('temp-') ? { ...i, id: docRef.id } : i)
+                    }));
+                } catch (error) {
+                    console.error("Error adding inquiry:", error);
+                }
+            },
+            deleteInquiry: async (id) => {
+                try {
+                    await deleteDoc(doc(db, 'inquiries', id));
+                    set((state) => ({
+                        inquiries: state.inquiries.filter((i) => i.id !== id)
+                    }));
+                } catch (error) {
+                    console.error("Error deleting inquiry:", error);
+                }
+            },
+            markInquiryRead: async (id) => {
+                try {
+                    const ref = doc(db, 'inquiries', id);
+                    await updateDoc(ref, { read: true });
+                    set((state) => ({
+                        inquiries: state.inquiries.map((i) => i.id === id ? { ...i, read: true } : i)
+                    }));
+                } catch (error) {
+                    console.error("Error marking inquiry read:", error);
+                }
+            },
 
             // Service Updates
             updateServicePackage: (lang, index, data) => set((state) => {
