@@ -263,7 +263,14 @@ export default function ProjectEditor() {
                                     type="text"
                                     value={project.img}
                                     onChange={e => setProject({ ...project, img: e.target.value })}
-                                    placeholder="Image URL or Upload..."
+                                    onBlur={(e) => {
+                                        let val = e.target.value.trim();
+                                        if (val && !val.startsWith('http') && !val.startsWith('data:') && !val.startsWith('/')) {
+                                            val = 'https://' + val;
+                                            setProject({ ...project, img: val });
+                                        }
+                                    }}
+                                    placeholder="Image URL (https://...) or Upload..."
                                     style={{ flex: 1 }}
                                 />
                                 <label className="btn-icon" style={{ cursor: 'pointer', background: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', width: '40px', color: 'white' }}>
@@ -281,7 +288,12 @@ export default function ProjectEditor() {
                                     <ImageIcon size={18} />
                                 </label>
                             </div>
-                            {project.img && <img src={project.img} className="sidebar-preview" alt="Cover" />}
+                            {project.img && (project.img.includes('behance.net/gallery') || project.img.includes('dribbble.com/shots')) && (
+                                <p style={{ color: 'red', fontSize: '0.8rem', marginTop: -5, marginBottom: 10 }}>
+                                    ⚠️ Warning: This looks like a webpage link, not an image. Right-click the image on the site and choose "Copy Image Address".
+                                </p>
+                            )}
+                            {project.img && <img src={project.img} className="sidebar-preview" alt="Cover" onError={(e) => e.target.src = 'https://via.placeholder.com/150?text=Invalid+Link'} />}
                         </div>
                         <div className="form-group">
                             <label>Live Link</label>

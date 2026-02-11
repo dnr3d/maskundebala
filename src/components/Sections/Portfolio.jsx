@@ -44,7 +44,8 @@ export default function Portfolio() {
             <div className="empty-state">{t.empty}</div>
           )}
           {filteredProjects.map(project => {
-            const isImage = project.img && (project.img.startsWith('http') || project.img.startsWith('/') || project.img.startsWith('data:'));
+            // Assume it's an image if it has a value, let the img tag handle errors
+            const isImage = !!project.img;
             const bgStyle = isImage ? `url(${project.img})` : project.img;
 
             return (
