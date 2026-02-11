@@ -13,15 +13,15 @@ export const useStore = create(
                 subhead: 'Senior Designer Portfolio',
             },
             updateHero: async (data) => {
-                set((state) => {
-                    const newHero = { ...state.hero, ...data };
-                    // Auto-sync to Firestore
-                    const { db } = require('../firebase');
-                    import('../firebase').then(({ db, setDoc, doc }) => {
-                        setDoc(doc(db, 'content', 'main'), { hero: newHero }, { merge: true });
-                    });
-                    return { hero: newHero };
-                });
+                const newHero = { ...get().hero, ...data };
+                set({ hero: newHero });
+                try {
+                    const { db } = await import('../firebase');
+                    const { doc, setDoc } = await import('firebase/firestore');
+                    await setDoc(doc(db, 'content', 'main'), { hero: newHero }, { merge: true });
+                } catch (error) {
+                    console.error("Error saving hero:", error);
+                }
             },
 
             // About Section
@@ -37,14 +37,16 @@ export const useStore = create(
                     { num: '15', label: 'Awards' },
                 ]
             },
-            updateAbout: (data) => {
-                set((state) => {
-                    const newAbout = { ...state.about, ...data };
-                    import('../firebase').then(({ db, setDoc, doc }) => {
-                        setDoc(doc(db, 'content', 'main'), { about: newAbout }, { merge: true });
-                    });
-                    return { about: newAbout };
-                });
+            updateAbout: async (data) => {
+                const newAbout = { ...get().about, ...data };
+                set({ about: newAbout });
+                try {
+                    const { db } = await import('../firebase');
+                    const { doc, setDoc } = await import('firebase/firestore');
+                    await setDoc(doc(db, 'content', 'main'), { about: newAbout }, { merge: true });
+                } catch (error) {
+                    console.error("Error saving about:", error);
+                }
             },
 
             // Contact Section
@@ -53,14 +55,16 @@ export const useStore = create(
                 location: 'Almaty, Kazakhstan',
                 status: 'Available for freelance'
             },
-            updateContact: (data) => {
-                set((state) => {
-                    const newContact = { ...state.contact, ...data };
-                    import('../firebase').then(({ db, setDoc, doc }) => {
-                        setDoc(doc(db, 'content', 'main'), { contact: newContact }, { merge: true });
-                    });
-                    return { contact: newContact };
-                });
+            updateContact: async (data) => {
+                const newContact = { ...get().contact, ...data };
+                set({ contact: newContact });
+                try {
+                    const { db } = await import('../firebase');
+                    const { doc, setDoc } = await import('firebase/firestore');
+                    await setDoc(doc(db, 'content', 'main'), { contact: newContact }, { merge: true });
+                } catch (error) {
+                    console.error("Error saving contact:", error);
+                }
             },
 
             // Projects

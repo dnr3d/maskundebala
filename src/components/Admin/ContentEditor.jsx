@@ -34,6 +34,17 @@ export default function ContentEditor() {
         updateServicePackage(language, index, { includes: list });
     };
 
+    // Helper to handle save with feedback
+    const handleSave = async (fn, data) => {
+        try {
+            await fn(data);
+            alert('Saved successfully!');
+        } catch (error) {
+            alert('Error saving!');
+            console.error(error);
+        }
+    };
+
     return (
         <div className="admin-section">
             <h2>Content Editor</h2>
@@ -41,7 +52,7 @@ export default function ContentEditor() {
             <div className="grid-12">
                 {/* Hero Edit */}
                 <div className="col-4">
-                    <form onSubmit={subHero((data) => updateHero(data))} className="admin-form">
+                    <form onSubmit={subHero((data) => handleSave(updateHero, data))} className="admin-form">
                         <h3>Hero Section</h3>
                         <label>Headline Line 1</label>
                         <input {...regHero("headlineFirst")} />
@@ -101,8 +112,7 @@ export default function ContentEditor() {
                                         }
                                         const reader = new FileReader();
                                         reader.onloadend = () => {
-                                            updateAbout({ cv: reader.result }); // Updates global state
-                                            alert("CV Uploaded!");
+                                            handleSave(updateAbout, { cv: reader.result }); // Updates global state
                                         };
                                         reader.readAsDataURL(file);
                                     }
@@ -137,7 +147,7 @@ export default function ContentEditor() {
 
                 {/* Contact Edit */}
                 <div className="col-4">
-                    <form onSubmit={subContact((data) => updateContact(data))} className="admin-form">
+                    <form onSubmit={subContact((data) => handleSave(updateContact, data))} className="admin-form">
                         <h3>Contact Info</h3>
                         <label>Email</label>
                         <input {...regContact("email")} />
