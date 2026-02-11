@@ -60,12 +60,17 @@ export default function Portfolio() {
                 onClick={() => setSelectedProject(project)}
               >
                 <div className="card-image-wrapper">
-                  <div className="card-image" style={{
-                    background: bgStyle,
-                    backgroundColor: isImage ? '#eee' : project.img,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}>
+                  <div className="card-image" style={{ minHeight: '200px', backgroundColor: '#f0f0f0' }}>
+                    {isImage ? (
+                      <img
+                        src={project.img}
+                        alt={project.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', background: project.img || '#eee' }}></div>
+                    )}
                   </div>
 
                   <div className="overlay">
