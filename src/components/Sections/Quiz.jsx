@@ -15,21 +15,29 @@ export default function Quiz() {
         setTimeout(() => setStep(prev => prev + 1), 300);
     };
 
-    const submitQuiz = (e) => {
+    const submitQuiz = async (e) => {
         e.preventDefault();
-        addInquiry({
-            type: 'Quiz Result',
-            firstName: contact.name, // Mapping single name to firstName for list compatibility
-            lastName: '',
-            email: contact.email,
-            phone: contact.phone,
-            budget: answers.budget,
-            task: answers.task,
-            deadline: answers.deadline,
-            references: answers.ref,
-            comment: `Quiz Results:\nTask: ${answers.task}\nBudget: ${answers.budget}\nDeadline: ${answers.deadline}\nRef: ${answers.ref}`
-        });
-        setStep(6);
+        try {
+            await addInquiry({
+                type: 'Quiz Result',
+                firstName: contact.name, // Mapping single name to firstName for list compatibility
+                lastName: '',
+                email: contact.email,
+                phone: contact.phone,
+                budget: answers.budget,
+                task: answers.task,
+                deadline: answers.deadline,
+                references: answers.ref,
+                comment: `Quiz Results:\nTask: ${answers.task}
+Budget: ${answers.budget}
+Deadline: ${answers.deadline}
+Ref: ${answers.ref}`
+            });
+            setStep(6);
+        } catch (error) {
+            console.error("Quiz Error:", error);
+            alert("Ошибка отправки: " + (error.message || "Unknown error"));
+        }
     };
 
     const variants = {

@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Projects: Public Read, Admin Write
+    match /projects/{project} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Content (Hero, About, etc.): Public Read, Admin Write
+    match /content/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Inquiries: Anyone can CREATE (submit form), only Admin can READ/MANAGE
+    match /inquiries/{inquiry} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}
