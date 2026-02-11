@@ -13,12 +13,25 @@ export const useStore = create(
                 subhead: 'Senior Designer Portfolio',
             },
             updateHero: async (data) => {
-                const newHero = { ...get().hero, ...data };
-                set({ hero: newHero });
+                const state = get();
+                const newHero = { ...state.hero, ...data };
+
+                // Also update translations for current language
+                const newTranslations = { ...state.translations };
+                if (newTranslations[state.language]) {
+                    newTranslations[state.language].hero = { ...newTranslations[state.language].hero, ...data };
+                }
+
+                set({ hero: newHero, translations: newTranslations });
+
                 try {
                     const { db } = await import('../firebase');
                     const { doc, setDoc } = await import('firebase/firestore');
-                    await setDoc(doc(db, 'content', 'main'), { hero: newHero }, { merge: true });
+                    // Save both root hero and translations
+                    await setDoc(doc(db, 'content', 'main'), {
+                        hero: newHero,
+                        translations: newTranslations
+                    }, { merge: true });
                 } catch (error) {
                     console.error("Error saving hero:", error);
                 }
@@ -38,12 +51,23 @@ export const useStore = create(
                 ]
             },
             updateAbout: async (data) => {
-                const newAbout = { ...get().about, ...data };
-                set({ about: newAbout });
+                const state = get();
+                const newAbout = { ...state.about, ...data };
+
+                // Also update translations for current language (for consistent fields)
+                const newTranslations = { ...state.translations };
+                if (newTranslations[state.language] && newTranslations[state.language].about) {
+                    newTranslations[state.language].about = { ...newTranslations[state.language].about, ...data };
+                }
+
+                set({ about: newAbout, translations: newTranslations });
                 try {
                     const { db } = await import('../firebase');
                     const { doc, setDoc } = await import('firebase/firestore');
-                    await setDoc(doc(db, 'content', 'main'), { about: newAbout }, { merge: true });
+                    await setDoc(doc(db, 'content', 'main'), {
+                        about: newAbout,
+                        translations: newTranslations
+                    }, { merge: true });
                 } catch (error) {
                     console.error("Error saving about:", error);
                 }
@@ -56,12 +80,23 @@ export const useStore = create(
                 status: 'Available for freelance'
             },
             updateContact: async (data) => {
-                const newContact = { ...get().contact, ...data };
-                set({ contact: newContact });
+                const state = get();
+                const newContact = { ...state.contact, ...data };
+
+                // Also update translations for current language
+                const newTranslations = { ...state.translations };
+                if (newTranslations[state.language]) {
+                    newTranslations[state.language].contact = { ...newTranslations[state.language].contact, ...data };
+                }
+
+                set({ contact: newContact, translations: newTranslations });
                 try {
                     const { db } = await import('../firebase');
                     const { doc, setDoc } = await import('firebase/firestore');
-                    await setDoc(doc(db, 'content', 'main'), { contact: newContact }, { merge: true });
+                    await setDoc(doc(db, 'content', 'main'), {
+                        contact: newContact,
+                        translations: newTranslations
+                    }, { merge: true });
                 } catch (error) {
                     console.error("Error saving contact:", error);
                 }

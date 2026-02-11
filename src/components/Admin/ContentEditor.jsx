@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 import { useStore } from '../../store/useStore';
 
 export default function ContentEditor() {
@@ -18,9 +19,22 @@ export default function ContentEditor() {
 
     // Forms
     // Forms
-    const { register: regHero, handleSubmit: subHero } = useForm({ defaultValues: hero });
-    const { register: regAbout, handleSubmit: subAbout } = useForm({ defaultValues: about });
-    const { register: regContact, handleSubmit: subContact } = useForm({ defaultValues: contact });
+    const { register: regHero, handleSubmit: subHero, reset: resetHero } = useForm({ defaultValues: hero });
+    const { register: regAbout, handleSubmit: subAbout, reset: resetAbout } = useForm({ defaultValues: about });
+    const { register: regContact, handleSubmit: subContact, reset: resetContact } = useForm({ defaultValues: contact });
+
+    // Reset forms when store data changes (e.g. after fetchGlobalContent)
+    useEffect(() => {
+        resetHero(hero);
+    }, [hero, resetHero]);
+
+    useEffect(() => {
+        resetAbout(about);
+    }, [about, resetAbout]);
+
+    useEffect(() => {
+        resetContact(contact);
+    }, [contact, resetContact]);
 
     const services = translations[language].services.packages;
 
