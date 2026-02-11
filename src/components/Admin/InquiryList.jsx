@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from 'react'; // Force update
 import { useStore } from '../../store/useStore';
 import { Mail, Phone, Calendar, Trash2, Check, ExternalLink } from 'lucide-react';
 
