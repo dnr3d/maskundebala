@@ -23,18 +23,33 @@ export default function ContentEditor() {
     const { register: regAbout, handleSubmit: subAbout, reset: resetAbout } = useForm({ defaultValues: about });
     const { register: regContact, handleSubmit: subContact, reset: resetContact } = useForm({ defaultValues: contact });
 
-    // Reset forms when store data changes (e.g. after fetchGlobalContent)
+    // Reset forms when store data changes (e.g. after fetchGlobalContent) or LANGUAGE changes
     useEffect(() => {
-        resetHero(hero);
-    }, [hero, resetHero]);
+        if (translations[language] && translations[language].hero) {
+            resetHero(translations[language].hero);
+        } else {
+            resetHero(hero); // Fallback to root
+        }
+    }, [hero, language, translations, resetHero]);
 
     useEffect(() => {
-        resetAbout(about);
-    }, [about, resetAbout]);
+        if (translations[language] && translations[language].about) {
+            // Merge translation data with root data (cv)
+            const combinedAbout = {
+                ...translations[language].about,
+                cv: about.cv
+            };
+            resetAbout(combinedAbout);
+        }
+    }, [about, language, translations, resetAbout]);
 
     useEffect(() => {
-        resetContact(contact);
-    }, [contact, resetContact]);
+        if (translations[language] && translations[language].contact) {
+            resetContact(translations[language].contact);
+        } else {
+            resetContact(contact); // Fallback
+        }
+    }, [contact, language, translations, resetContact]);
 
     const services = translations[language].services.packages;
 
@@ -80,37 +95,17 @@ export default function ContentEditor() {
 
                 {/* About Edit */}
                 <div className="col-4">
-                    <div className="admin-form">
+                    <form onSubmit={subAbout((data) => handleSave(updateAbout, data))} className="admin-form">
                         <h3>About Section ({language})</h3>
 
                         <label>Tagline</label>
-                        <input
-                            defaultValue={translations[language].about.tag}
-                            onBlur={(e) => {
-                                const newAbout = { ...translations[language].about, tag: e.target.value };
-                                updateStoreDeep(language, 'about', newAbout);
-                            }}
-                        />
+                        <input {...regAbout("tag")} />
 
                         <label>Main Title</label>
-                        <textarea
-                            defaultValue={translations[language].about.title}
-                            rows={3}
-                            onBlur={(e) => {
-                                const newAbout = { ...translations[language].about, title: e.target.value };
-                                updateStoreDeep(language, 'about', newAbout);
-                            }}
-                        />
+                        <textarea {...regAbout("title")} rows={3} />
 
                         <label>Description</label>
-                        <textarea
-                            defaultValue={translations[language].about.desc}
-                            rows={5}
-                            onBlur={(e) => {
-                                const newAbout = { ...translations[language].about, desc: e.target.value };
-                                updateStoreDeep(language, 'about', newAbout);
-                            }}
-                        />
+                        <textarea {...regAbout("desc")} rows={5} />
 
                         <label>CV Upload (PDF, Max 2MB)</label>
                         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -126,7 +121,8 @@ export default function ContentEditor() {
                                         }
                                         const reader = new FileReader();
                                         reader.onloadend = () => {
-                                            handleSave(updateAbout, { cv: reader.result }); // Updates global state
+                                            // Directly update store for CV as it might be large/async
+                                            handleSave(updateAbout, { cv: reader.result });
                                         };
                                         reader.readAsDataURL(file);
                                     }
@@ -141,22 +137,21 @@ export default function ContentEditor() {
                             {translations[language].about.skills.map((skill, idx) => (
                                 <div key={idx} style={{ display: 'flex', gap: '10px', marginBottom: '5px' }}>
                                     <span style={{ fontSize: '0.8rem', width: '100px' }}>{skill.name}</span>
+                                    {/* Register array fields manually if mapped */}
                                     <input
                                         type="number"
-                                        defaultValue={skill.level}
+                                        {...regAbout(`skills.${idx}.level`)}
                                         style={{ width: '60px' }}
-                                        onBlur={(e) => {
-                                            const newSkills = [...translations[language].about.skills];
-                                            newSkills[idx] = { ...newSkills[idx], level: parseInt(e.target.value) };
-                                            const newAbout = { ...translations[language].about, skills: newSkills };
-                                            updateStoreDeep(language, 'about', newAbout);
-                                        }}
                                     />
+                                    {/* Hidden input to keep name persisting if entire object is replaced */}
+                                    <input type="hidden" {...regAbout(`skills.${idx}.name`)} value={skill.name} />
+                                    <input type="hidden" {...regAbout(`skills.${idx}.label`)} value={skill.label} />
                                 </div>
                             ))}
                         </div>
 
-                    </div>
+                        <button type="submit" className="btn-save">Save About</button>
+                    </form>
                 </div>
 
                 {/* Contact Edit */}
