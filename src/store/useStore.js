@@ -8,9 +8,9 @@ export const useStore = create(
         (set, get) => ({
             // Hero Section
             hero: {
-                headlineFirst: 'PURE',
-                headlineSecond: 'DESIGN',
-                subhead: 'Senior Designer Portfolio',
+                headlineFirst: 'Pure',
+                headlineSecond: 'Design',
+                sub: 'Senior Designer Portfolio',
             },
             updateHero: async (data) => {
                 const state = get();
