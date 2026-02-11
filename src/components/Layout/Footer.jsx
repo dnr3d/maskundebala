@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="container">
         <div className="footer-content">
           <div className="copyright font-mono">
-            © 2026 Daniyar Web. All rights reserved.
+            © 2026 maskundebala. All rights reserved.
           </div>
 
           <div className="socials">
@@ -22,6 +22,22 @@ export default function Footer() {
           <button className="back-to-top" onClick={scrollToTop}>
             <ArrowUp size={20} />
           </button>
+        </div>
+
+        {/* Hidden Admin Link */}
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          opacity: 0,
+          transition: 'opacity 0.3s',
+          zIndex: 100
+        }}
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+        >
+          <a href="/#/admin" style={{ color: '#555', textDecoration: 'none', fontSize: '12px', letterSpacing: '2px' }}>ADMIN</a>
         </div>
       </div>
 

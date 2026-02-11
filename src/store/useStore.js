@@ -409,7 +409,7 @@ export const useStore = create(
                     hero: {
                         headlineFirst: 'ТАЗА',
                         headlineSecond: 'ДИЗАЙН',
-                        sub: 'Аға Дизайнер Портфолиосы',
+                        sub: 'Senior Дизайнер Портфолиясы',
                         cta: 'Жұмыс істейік',
                         about: 'Мен жайлы',
                         customers: '+18k Риза клиенттер',

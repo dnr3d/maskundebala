@@ -56,7 +56,20 @@ export default function Header() {
         {/* Desktop Menu */}
         <nav className="desktop-menu">
           {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="nav-link">
+            <a
+              key={link.href}
+              href={link.href}
+              className="nav-link"
+              onClick={(e) => {
+                e.preventDefault();
+                // Extract id from '#works' -> 'works'
+                const id = link.href.substring(1);
+                const element = document.getElementById(id);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
               {link.label}
             </a>
           ))}
@@ -87,7 +100,18 @@ export default function Header() {
             <ul>
               {navLinks.map((link) => (
                 <motion.li key={link.href} variants={linkVariants}>
-                  <a href={link.href} onClick={() => setIsOpen(false)}>
+                  <a
+                    href={link.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsOpen(false);
+                      const id = link.href.substring(1);
+                      const element = document.getElementById(id);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }}
+                  >
                     {link.label}
                   </a>
                 </motion.li>

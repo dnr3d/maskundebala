@@ -32,7 +32,6 @@ export default function Contact() {
           <div className="contact-info mono-text">
             <p>Based in {contact.location}</p>
             <p>{t.location}</p>
-            <a href="/#/admin" style={{ opacity: 0.1, color: 'inherit', textDecoration: 'none' }}>Admin</a>
           </div>
         </div>
       </div>
