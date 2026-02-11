@@ -8,12 +8,13 @@ import NotFound from './pages/NotFound';
 const AdminPanel = lazy(() => import('./pages/Admin'));
 
 function App() {
-  const { fetchProjects, fetchGlobalContent } = useStore();
+  const { fetchProjects, fetchGlobalContent, fetchCategories } = useStore();
 
   useEffect(() => {
     fetchProjects();
     fetchGlobalContent();
-  }, [fetchProjects, fetchGlobalContent]);
+    fetchCategories();
+  }, [fetchProjects, fetchGlobalContent, fetchCategories]);
 
   return (
     <HashRouter>

@@ -171,13 +171,56 @@ export const useStore = create(
 
             // Categories
 
+            // Categories
             categories: ['Branding', '3D', '3D Animation', '2D Arts', '2D Animation', 'UI/UX', 'Game Dev', 'Web App'],
-            addCategory: (category) => set((state) => ({
-                categories: [...state.categories, category]
-            })),
-            deleteCategory: (category) => set((state) => ({
-                categories: state.categories.filter((c) => c !== category)
-            })),
+
+            fetchCategories: async () => {
+                try {
+                    const { doc, getDoc } = await import('firebase/firestore');
+                    const { db } = await import('../firebase');
+                    const docRef = doc(db, 'content', 'categories');
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists() && docSnap.data().list) {
+                        set({ categories: docSnap.data().list });
+                    } else {
+                        // If no doc exists, initialize with default
+                        const defaultCats = ['Branding', '3D', '3D Animation', '2D Arts', '2D Animation', 'UI/UX', 'Game Dev', 'Web App'];
+                        // Optional: auto-create the doc if missing, but let's just use default in state for now
+                        // actually better to create it so admin has something to edit
+                    }
+                } catch (error) {
+                    console.error("Error fetching categories:", error);
+                }
+            },
+
+            addCategory: async (category) => {
+                const state = get();
+                const newCategories = [...state.categories, category];
+                set({ categories: newCategories });
+
+                try {
+                    const { doc, setDoc } = await import('firebase/firestore');
+                    const { db } = await import('../firebase');
+                    await setDoc(doc(db, 'content', 'categories'), { list: newCategories });
+                } catch (error) {
+                    console.error("Error adding category:", error);
+                }
+            },
+
+            deleteCategory: async (category) => {
+                const state = get();
+                const newCategories = state.categories.filter((c) => c !== category);
+                set({ categories: newCategories });
+
+                try {
+                    const { doc, setDoc } = await import('firebase/firestore');
+                    const { db } = await import('../firebase');
+                    await setDoc(doc(db, 'content', 'categories'), { list: newCategories });
+                } catch (error) {
+                    console.error("Error deleting category:", error);
+                }
+            },
 
             // Language
             language: 'ENG',
