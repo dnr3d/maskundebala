@@ -6,6 +6,7 @@ import NotFound from './pages/NotFound';
 
 // Lazy load Admin Panel so it doesn't affect initial load time
 const AdminPanel = lazy(() => import('./pages/Admin'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 function App() {
   const { fetchProjects, fetchGlobalContent, fetchCategories } = useStore();
@@ -20,14 +21,14 @@ function App() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/admin/*"
+        <Route path="/admin/*"
           element={
             <Suspense fallback={<div style={{ color: 'white', padding: 50 }}>Loading Admin...</div>}>
               <AdminPanel />
             </Suspense>
           }
         />
+        <Route path="/privacy" element={<Suspense fallback={<div>Loading...</div>}><PrivacyPolicy /></Suspense>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>

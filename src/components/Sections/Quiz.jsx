@@ -8,7 +8,7 @@ export default function Quiz() {
     const t = translations[language].quiz;
     const [step, setStep] = useState(0);
     const [answers, setAnswers] = useState({});
-    const [contact, setContact] = useState({ name: '', email: '', phone: '' });
+    const [contact, setContact] = useState({ name: '', email: '', phone: '', consent: false });
 
     const handleAnswer = (key, value) => {
         setAnswers(prev => ({ ...prev, [key]: value }));
@@ -110,7 +110,20 @@ Ref: ${answers.ref}`
                                 placeholder={t.placeholders.phone} type="tel"
                                 value={contact.phone} onChange={e => setContact({ ...contact, phone: e.target.value })}
                             />
-                            <button type="submit" className="submit-btn">
+                            <div className="consent-checkbox">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        required
+                                        checked={contact.consent}
+                                        onChange={e => setContact({ ...contact, consent: e.target.checked })}
+                                    />
+                                    <span>
+                                        Нажимая кнопку «Отправить», я даю свое согласие <strong>Бексултан Данияр Жомартулы</strong> на сбор и обработку моих персональных данных (имя, номер телефона, адрес электронной почты) в соответствии с Законом РК «О персональных данных и их защите» для целей обратной связи и обсуждения услуг дизайна. Я подтверждаю, что ознакомлен с <a href="/#/privacy" target="_blank">Политикой конфиденциальности</a>.
+                                    </span>
+                                </label>
+                            </div>
+                            <button type="submit" className="submit-btn" disabled={!contact.consent}>
                                 <Send size={16} /> {t.btnSubmit}
                             </button>
                         </form>
@@ -190,6 +203,33 @@ Ref: ${answers.ref}`
                 }
                 .reset-btn { background: none; border: 1px solid #333; color: #888; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-top: 20px; }
                 .reset-btn:hover { color: white; border-color: white; }
+                .reset-btn:hover { color: white; border-color: white; }
+
+                .consent-checkbox {
+                    text-align: left;
+                    font-size: 0.75rem;
+                    color: #666;
+                    margin-bottom: 10px;
+                }
+                .consent-checkbox label {
+                    display: flex;
+                    gap: 10px;
+                    align-items: flex-start;
+                    cursor: pointer;
+                }
+                .consent-checkbox input {
+                    margin-top: 3px;
+                    width: 16px;
+                    height: 16px;
+                }
+                .consent-checkbox a {
+                    color: #000;
+                    text-decoration: underline;
+                }
+                .submit-btn:disabled {
+                    background: #ccc;
+                    cursor: not-allowed;
+                }
             `}</style>
         </div>
     );
