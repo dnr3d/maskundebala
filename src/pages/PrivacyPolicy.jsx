@@ -70,13 +70,13 @@ export default function PrivacyPolicy() {
                     max-width: 800px;
                     margin: 0 auto;
                     padding: 40px 20px;
-                    color: #fff;
+                    color: #000;
                     font-family: 'Inter', sans-serif;
                 }
 
                 .policy-header {
                     margin-bottom: 40px;
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
+                    border-bottom: 1px solid rgba(0,0,0,0.1);
                     padding-bottom: 20px;
                 }
 
@@ -84,27 +84,28 @@ export default function PrivacyPolicy() {
                     display: inline-flex;
                     align-items: center;
                     gap: 10px;
-                    color: #aaa;
+                    color: #666;
                     text-decoration: none;
                     margin-bottom: 20px;
                     transition: 0.2s;
                 }
-                .back-link:hover { color: #fff; }
+                .back-link:hover { color: #000; }
 
                 h1 {
                     font-size: 2rem;
                     line-height: 1.2;
+                    color: #000;
                 }
 
                 h2 {
                     font-size: 1.5rem;
                     margin-top: 30px;
                     margin-bottom: 15px;
-                    color: #fff;
+                    color: #000;
                 }
 
                 p, li {
-                    color: #ccc;
+                    color: #333;
                     line-height: 1.6;
                     font-size: 1rem;
                     margin-bottom: 15px;
@@ -116,12 +117,12 @@ export default function PrivacyPolicy() {
                 }
 
                 a {
-                    color: #fff;
+                    color: #000;
                     text-decoration: underline;
                 }
                 
                 strong {
-                    color: #fff;
+                    color: #000;
                 }
             `}</style>
         </div>
