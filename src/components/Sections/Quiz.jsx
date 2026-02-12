@@ -28,6 +28,7 @@ export default function Quiz() {
                 task: answers.task,
                 deadline: answers.deadline,
                 references: answers.ref,
+                consentTimestamp: new Date().toISOString(),
                 comment: `Quiz Results:\nTask: ${answers.task}
 Budget: ${answers.budget}
 Deadline: ${answers.deadline}
