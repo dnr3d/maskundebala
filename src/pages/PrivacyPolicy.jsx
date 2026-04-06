@@ -72,7 +72,7 @@ export default function PrivacyPolicy() {
             <main>
                 <section>
                     <h2 style={styles.h2}>1. Общие положения</h2>
-                    <p style={styles.p}>Настоящая Политика составлена в соответствии с Законом Республики Казахстан от 21 мая 2013 года № 94-V «О персональных данных и их защите». Оператором данных является физическое лицо <strong style={{ color: '#000' }}>Бексултан Данияр Жомартулы</strong> (далее — Оператор), ИИН: <strong style={{ color: '#000' }}>010907501063</strong>, контактный email: <a href="mailto:dbeksultan6@gmail.com" style={styles.a}>dbeksultan6@gmail.com</a>.</p>
+                    <p style={styles.p}>Настоящая Политика составлена в соответствии с Законом Республики Казахстан от 21 мая 2013 года № 94-V «О персональных данных и их защите». Оператором данных является физическое лицо Бексултан Данияр Жомартулы, контактный email: <a href="mailto:dbeksultan6@gmail.com" style={styles.a}>dbeksultan6@gmail.com</a>.</p>
                 </section>
 
                 <section>
